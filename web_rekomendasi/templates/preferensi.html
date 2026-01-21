@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8">
+        <div class="card border-info shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">👋 Selamat Datang, {{ user.username }}!</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="lead text-center mb-4">
+                    Agar kami bisa memberikan rekomendasi produk UMKM yang tepat untuk Anda, 
+                    silakan pilih kategori yang Anda minati di bawah ini:
+                </p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold mb-3">Pilih Kategori (Boleh lebih dari satu):</label>
+                        
+                        <div class="row">
+                            {% for checkbox in form.kategori_disukai %}
+                            <div class="col-md-6 mb-2">
+                                <div class="form-check p-3 border rounded bg-light">
+                                    {{ checkbox.tag }}
+                                    <label class="form-check-label ms-2 fw-bold" for="{{ checkbox.id_for_label }}">
+                                        {{ checkbox.choice_label }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if form.kategori_disukai.errors %}
+                            <div class="alert alert-danger mt-2">
+                                {{ form.kategori_disukai.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            Simpan & Masuk ke Dashboard 🚀
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
