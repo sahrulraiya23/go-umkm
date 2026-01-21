@@ -2,36 +2,37 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth import views as auth_views
 
-# Pastikan meng-import detail_produk_view di sini
+# Pastikan semua view di-import di sini
 from web_rekomendasi.views import (
-    dashboard, 
-    logout_view, 
-    register_view, 
-    pilih_preferensi_view, 
-    detail_produk_view 
+    landing_page,       # <--- View baru (Halaman Awal)
+    dashboard,          # <--- View Dashboard (JANGAN LUPA INI)
+    login_view,         # Sesuaikan dengan nama fungsi di views.py (misal: login_view atau login_user)
+    logout_view,
+    register_view,
+    pilih_preferensi_view,
+    detail_produk_view
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
-    # Dashboard (Halaman Utama)
-    path('', dashboard, name='dashboard'),
-    
-    # Autentikasi
-    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+
+    # 1. HALAMAN AWAL (Landing Page Gojek Style)
+    path('', landing_page, name='landing_page'),
+
+    # 2. HALAMAN DASHBOARD (Wajib ada name='dashboard')
+    path('dashboard/', dashboard, name='dashboard'), 
+
+    # 3. Authentikasi
+    path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path('register/', register_view, name='register'),
-    
-    # Fitur Preferensi (KNN Cold Start)
+
+    # 4. Fitur Lain
     path('preferensi/', pilih_preferensi_view, name='pilih_preferensi'),
-    
-    # === [PENYEBAB ERROR ANDA] ===
-    # Baris ini sebelumnya hilang, makanya error "NoReverseMatch"
     path('produk/<int:produk_id>/', detail_produk_view, name='detail_produk'),
 ]
 
-# Konfigurasi untuk menampilkan gambar produk
+# Konfigurasi untuk menampilkan gambar (Media)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,67 +1,87 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row mt-4">
 
-    <div class="col-md-5 mb-4">
-        <div class="card shadow-sm border-0">
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        
+        <div class="card shadow-sm mb-4 border-0 overflow-hidden">
             {% if produk.gambar_produk %}
-                <img src="{{ produk.gambar_produk.url }}" class="card-img-top rounded" alt="{{ produk.nama_produk }}">
+                <img src="{{ produk.gambar_produk.url }}" class="card-img-top" style="height: 350px; object-fit: cover;" alt="{{ produk.nama_produk }}">
             {% else %}
-                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 300px;">
-                    <span>Tidak ada gambar</span>
+                <div class="bg-light text-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                    <i class="fas fa-image fa-4x"></i>
                 </div>
             {% endif %}
-        </div>
-    </div>
-
-    <div class="col-md-7">
-        <h2 class="fw-bold">{{ produk.nama_produk }}</h2>
-        <h4 class="text-danger fw-bold my-3">Rp {{ produk.harga }}</h4>
-
-        <div class="badge bg-info text-dark mb-3">
-            {{ produk.kategori.nama_kategori }}
-        </div>
-        <div class="badge bg-warning text-dark mb-3">
-            {{ produk.umkm.nama_umkm }}
-        </div>
-
-        <p class="text-muted">{{ produk.deskripsi }}</p>
-
-        <hr>
-
-        <div class="card bg-light border-0 p-3">
-            <h5 class="fw-bold">Beri Penilaian</h5>
-            <p class="small text-muted">
-                Penilaian Anda membantu kami merekomendasikan produk yang lebih baik.
-            </p>
-
-            <form method="POST">
-                {% csrf_token %}
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Rating</label>
-                    <select name="rating" class="form-select w-50" required>
-                        <option value="" disabled selected>-- Pilih Bintang --</option>
-                        <option value="5" {% if penilaian_user.rating == 5 %}selected{% endif %}>5 - Sangat Bagus</option>
-                        <option value="4" {% if penilaian_user.rating == 4 %}selected{% endif %}>4 - Bagus</option>
-                        <option value="3" {% if penilaian_user.rating == 3 %}selected{% endif %}>3 - Biasa</option>
-                        <option value="2" {% if penilaian_user.rating == 2 %}selected{% endif %}>2 - Kurang</option>
-                        <option value="1" {% if penilaian_user.rating == 1 %}selected{% endif %}>1 - Buruk</option>
-                    </select>
+            
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h2 class="fw-bold mb-1">{{ produk.nama_produk }}</h2>
+                        <p class="text-muted mb-2"><i class="fas fa-store me-1"></i> {{ produk.umkm.nama_umkm }}</p>
+                    </div>
+                    <h3 class="text-success fw-bold">Rp {{ produk.harga }}</h3>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Ulasan (Opsional)</label>
-                    <textarea name="ulasan" class="form-control" rows="2">{{ penilaian_user.ulasan|default:'' }}</textarea>
+                <hr class="my-3">
+                
+                <h5 class="fw-bold">Deskripsi</h5>
+                <p class="text-secondary">{{ produk.deskripsi|default:"Tidak ada deskripsi lengkap." }}</p>
+
+                <div class="d-grid mt-4">
+                    <button class="btn btn-primary btn-lg rounded-pill fw-bold">
+                        <i class="fas fa-shopping-cart me-2"></i> Pesan Sekarang
+                    </button>
+                    <small class="text-center text-muted mt-2">*Fitur pemesanan simulasi (Skripsi)</small>
                 </div>
-
-                <button type="submit" class="btn btn-primary">
-                    Kirim Penilaian
-                </button>
-            </form>
-
+            </div>
         </div>
+
+        <div class="card border-0 shadow-sm p-4 mb-5">
+            <h4 class="fw-bold mb-4">Apa kata mereka? ⭐</h4>
+            
+            <div class="bg-light p-3 rounded-4 mb-4">
+                <h6 class="fw-bold mb-2">Berikan Nilai Kamu</h6>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Rating Bintang (1-5)</label>
+                        <select name="rating" class="form-select border-0 shadow-sm" required>
+                            <option value="5">⭐⭐⭐⭐⭐ (Sangat Puas)</option>
+                            <option value="4">⭐⭐⭐⭐ (Bagus)</option>
+                            <option value="3">⭐⭐⭐ (Biasa)</option>
+                            <option value="2">⭐⭐ (Kurang)</option>
+                            <option value="1">⭐ (Buruk)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <textarea name="ulasan" class="form-control border-0 shadow-sm" rows="2" placeholder="Tulis ulasanmu di sini..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary w-100 rounded-pill">Kirim Ulasan</button>
+                </form>
+            </div>
+
+            {% for ulasan in semua_ulasan %}
+            <div class="d-flex border-bottom pb-3 mb-3">
+                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    {{ ulasan.user.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0">{{ ulasan.user.username }} 
+                        <span class="text-warning ms-2">
+                            <i class="fas fa-star"></i> {{ ulasan.rating }}
+                        </span>
+                    </h6>
+                    <small class="text-muted" style="font-size: 12px;">{{ ulasan.tanggal|date:"d M Y" }}</small>
+                    <p class="mb-0 mt-1 text-dark">{{ ulasan.ulasan }}</p>
+                </div>
+            </div>
+            {% empty %}
+                <p class="text-center text-muted my-3">Belum ada ulasan. Jadilah yang pertama!</p>
+            {% endfor %}
+        </div>
+
     </div>
 </div>
+
 {% endblock %}

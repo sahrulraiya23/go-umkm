@@ -1,20 +1,78 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4>Daftar Akun Baru</h4>
+
+<style>
+    /* Menargetkan input yang digenerate oleh Django */
+    .django-form input {
+        width: 100%;
+        padding: 12px 15px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        border: 1px solid #dee2e6;
+        border-radius: 12px; /* Sudut membulat */
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    
+    /* Efek saat diklik (Focus) */
+    .django-form input:focus {
+        border-color: #00AA13; /* Hijau Gojek */
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(0, 170, 19, 0.25);
+    }
+
+    /* Label form */
+    .django-form label {
+        font-weight: 500;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+
+    /* Teks bantuan (Help Text) agar tidak terlalu panjang */
+    .helptext {
+        display: block;
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+
+    /* List Error (Password tidak cocok, dll) */
+    .errorlist {
+        color: #dc3545;
+        list-style-type: none;
+        padding: 0;
+        font-size: 0.875rem;
+        margin-bottom: 10px;
+        text-align: left;
+    }
+</style>
+
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="card border-0 shadow-lg p-4 rounded-4" style="max-width: 450px; width: 100%;">
+        <div class="card-body text-center">
+            
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-user-plus fa-2x"></i>
             </div>
-            <div class="card-body">
-                <form method="POST">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary w-100">Daftar</button>
-                </form>
+
+            <h3 class="fw-bold mb-1">Buat Akun Baru</h3>
+            <p class="text-muted mb-4">Gabung dan temukan produk lokal terbaik!</p>
+
+            <form method="POST" class="text-start django-form">
+                {% csrf_token %}
+                
+                {{ form.as_p }}
+
+                <button type="submit" class="btn btn-primary w-100 py-3 mt-3 rounded-pill fw-bold fs-6 shadow-sm">
+                    Daftar Sekarang
+                </button>
+            </form>
+
+            <div class="mt-4 text-center">
+                <small class="text-muted">Sudah punya akun? <a href="{% url 'login' %}" class="text-success fw-bold text-decoration-none">Masuk di sini</a></small>
             </div>
         </div>
     </div>
 </div>
+
 {% endblock %}

@@ -1,33 +1,66 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-5">
-        <div class="card shadow-sm">
-            <div class="card-header bg-secondary text-white text-center">
-                <h4 class="mb-0">Masuk ke Sistem</h4>
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 70vh;">
+    <div class="card border-0 shadow-lg p-4 rounded-4" style="max-width: 400px; width: 100%;">
+        <div class="card-body text-center">
+            
+            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-user-lock fa-2x"></i>
             </div>
-            <div class="card-body p-4">
-                <form method="POST">
-                    {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Username</label>
-                        <input type="text" name="username" class="form-control" required>
-                    </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
+            <h3 class="fw-bold mb-1">Selamat Datang</h3>
+            <p class="text-muted mb-4">Silakan masuk untuk melanjutkan</p>
 
-                    <button type="submit" class="btn btn-dark w-100">Login</button>
-                </form>
-            </div>
-            <div class="card-footer text-center">
-                <small>Belum punya akun? <a href="{% url 'register' %}">Daftar di sini</a></small>
+            {% if form.errors %}
+                <div id="error-alert" class="alert alert-danger alert-dismissible fade show text-start p-3 rounded-3 mb-4 shadow-sm" role="alert">
+                    <div class="d-flex">
+                        <i class="fas fa-exclamation-circle mt-1 me-3 fa-lg"></i>
+                        <div>
+                            <h6 class="fw-bold mb-1">Login Gagal!</h6>
+                            <small class="d-block text-danger">Username atau password salah.</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                
+                <div class="form-floating mb-3 text-start">
+                    <input type="text" name="username" class="form-control rounded-3" id="floatingInput" placeholder="Username" required>
+                    <label for="floatingInput">Username</label>
+                </div>
+                
+                <div class="form-floating mb-4 text-start">
+                    <input type="password" name="password" class="form-control rounded-3" id="floatingPassword" placeholder="Password" required>
+                    <label for="floatingPassword">Password</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold fs-6 shadow-sm">
+                    Masuk Sekarang
+                </button>
+                
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+
+            <div class="mt-4 text-center">
+                <small class="text-muted">Belum punya akun? <a href="{% url 'register' %}" class="text-success fw-bold text-decoration-none">Daftar dulu</a></small>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    setTimeout(function() {
+        let alertBox = document.getElementById('error-alert');
+        if (alertBox) {
+            // Menggunakan Bootstrap Alert instance untuk menutup
+            let bsAlert = new bootstrap.Alert(alertBox);
+            bsAlert.close();
+        }
+    }, 5000); // 5000ms = 5 detik
+</script>
+
 {% endblock %}

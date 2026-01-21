@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    /* KITA HAPUS kode ".navbar { display: none }" agar Navbar UMKMGo muncul */
+
+    /* Style Container agar konten tetap rapi di tengah seperti aplikasi HP */
+    .welcome-container {
+        max-width: 500px;       /* Lebar ala aplikasi mobile */
+        margin: 0 auto;         /* Posisi tengah */
+        min-height: 80vh;       /* Tinggi minimal */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 20px 0;
+    }
+
+    /* Style untuk Slider/Carousel */
+    .carousel-item {
+        text-align: center;
+        padding: 20px 0;
+    }
+    
+    /* Titik-titik indikator slider */
+    .carousel-indicators [data-bs-target] {
+        background-color: #00AA13;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin: 0 5px;
+    }
+
+    .illustration-box {
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    /* Tombol Bawah Besar */
+    .bottom-buttons {
+        margin-top: 40px;
+        width: 100%;
+    }
+    
+    .btn-gojek-fill {
+        background-color: #00AA13;
+        color: white;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 16px;
+        padding: 12px;
+        width: 100%;
+        border: none;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 10px rgba(0, 170, 19, 0.2);
+    }
+    .btn-gojek-fill:hover { 
+        background-color: #008f11; 
+        color: white; 
+        transform: translateY(-2px);
+    }
+
+    .btn-gojek-outline {
+        background-color: white;
+        color: #00AA13;
+        border: 2px solid #00AA13; /* Border agak tebal biar jelas */
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 16px;
+        padding: 12px;
+        width: 100%;
+    }
+    .btn-gojek-outline:hover { 
+        background-color: #f0fdf4; 
+        color: #008f11; 
+    }
+</style>
+
+<div class="welcome-container">
+    
+    <div id="welcomeCarousel" class="carousel slide" data-bs-ride="carousel">
+        
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="illustration-box">
+                    <i class="fas fa-motorcycle text-success" style="font-size: 100px;"></i>
+                    <i class="fas fa-shopping-bag text-warning ms-3" style="font-size: 70px;"></i>
+                </div>
+                <h2 class="fw-bold mb-2">Selamat datang!</h2>
+                <p class="text-muted">Aplikasi UMKMGo siap bantu penuhi kebutuhanmu dengan produk lokal terbaik.</p>
+            </div>
+
+            <div class="carousel-item">
+                <div class="illustration-box">
+                    <i class="fas fa-robot text-primary" style="font-size: 100px;"></i>
+                </div>
+                <h2 class="fw-bold mb-2">Rekomendasi Cerdas</h2>
+                <p class="text-muted">Bingung pilih apa? AI kami akan memilihkan produk yang paling pas buat selera kamu.</p>
+            </div>
+
+            <div class="carousel-item">
+                <div class="illustration-box">
+                    <i class="fas fa-store text-danger" style="font-size: 100px;"></i>
+                </div>
+                <h2 class="fw-bold mb-2">Dukung Lokal</h2>
+                <p class="text-muted">Temukan ribuan produk unik dari pengrajin dan pedagang asli Kota Kendari.</p>
+            </div>
+        </div>
+
+        <div class="carousel-indicators position-relative mt-3">
+            <button type="button" data-bs-target="#welcomeCarousel" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#welcomeCarousel" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#welcomeCarousel" data-bs-slide-to="2"></button>
+        </div>
+    </div>
+
+    <div class="bottom-buttons">
+        <a href="{% url 'login' %}" class="btn btn-gojek-fill d-block">
+            Masuk
+        </a>
+        <a href="{% url 'register' %}" class="btn btn-gojek-outline d-block">
+            Belum ada akun? Daftar dulu
+        </a>
+        
+        <p class="text-muted text-center mt-4 small" style="font-size: 11px;">
+            Dengan masuk atau mendaftar, kamu menyetujui <br> 
+            <a href="#" class="text-success text-decoration-none fw-bold">Ketentuan Layanan</a> & <a href="#" class="text-success text-decoration-none fw-bold">Kebijakan Privasi</a>.
+        </p>
+    </div>
+
+</div>
+
+{% endblock %}

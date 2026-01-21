@@ -2,94 +2,121 @@
 
 {% block content %}
 
-<div class="row mb-4">
-    <div class="col-12">
-        <h2 class="fw-bold">Halo, {{ user.username }}! 👋</h2>
-        <p class="text-muted">Selamat datang di pusat UMKM Kota Kendari.</p>
-    </div>
-</div>
-
-<div class="card border-primary mb-5 shadow-sm">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="fas fa-star me-2"></i>Rekomendasi Spesial Untuk Anda</h5>
-    </div>
-    <div class="card-body bg-light">
-        
-        <div class="alert alert-info border-0 shadow-sm mb-4">
-            {% if is_new_user %}
-                <strong>🔍 Mode KNN (Cold Start):</strong> Karena Anda pengguna baru, rekomendasi ini dipilih berdasarkan <u>kategori yang Anda sukai</u>.
-            {% else %}
-                <strong>🤖 Mode NCF (Personalized):</strong> Rekomendasi ini disusun cerdas berdasarkan <u>rating dan interaksi</u> Anda sebelumnya.
-            {% endif %}
-        </div>
-
-        <div class="row">
-            {% for produk in rekomendasi_list %}
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 shadow-sm border-0">
-                    {% if produk.gambar_produk %}
-                        <img src="{{ produk.gambar_produk.url }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="{{ produk.nama_produk }}">
-                    {% else %}
-                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 150px;">
-                            <i class="fas fa-image fa-2x"></i>
-                        </div>
-                    {% endif %}
-                    
-                    <div class="card-body">
-                        <h6 class="card-title fw-bold text-truncate">{{ produk.nama_produk }}</h6>
-                        <p class="card-text text-danger fw-bold mb-1">Rp {{ produk.harga }}</p>
-                        <small class="text-muted"><i class="fas fa-store me-1"></i> {{ produk.umkm.nama_umkm }}</small>
-                    </div>
-                    <div class="card-footer bg-white border-top-0 pt-0">
-                        <a href="{% url 'detail_produk' produk.id %}" class="btn btn-outline-primary w-100 btn-sm">Lihat Detail</a>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12 text-center py-5">
-                <p class="text-muted">Belum ada rekomendasi yang tersedia saat ini.</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-<div class="mb-5">
-    
-    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-        <h4 class="fw-bold mb-0">🛒 Katalog Produk Terbaru</h4>
-        
-        <form action="" method="GET" class="d-flex" style="width: 300px;">
+<div class="row justify-content-center mb-5 mt-3">
+    <div class="col-md-8 text-center">
+        <h2 class="fw-bold mb-3">Mau cari apa hari ini?</h2>
+        <form action="" method="GET">
             <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="Cari produk..." value="{{ search_query|default:'' }}">
-                <button class="btn btn-primary" type="submit">
+                <input type="text" name="q" class="form-control search-hero form-control-lg" placeholder="Cari bakso, tenun, atau kripik..." value="{{ search_query|default:'' }}">
+                <button class="btn btn-primary ms-2 rounded-circle" type="submit" style="width: 50px; height: 50px;">
                     <i class="fas fa-search"></i>
                 </button>
             </div>
         </form>
     </div>
+</div>
 
+<div class="d-flex justify-content-center gap-4 mb-5 flex-wrap">
+    <a href="?q=kuliner" class="text-decoration-none text-dark text-center">
+        <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm mb-2" style="width: 60px; height: 60px; font-size: 24px;">
+            <i class="fas fa-utensils"></i>
+        </div>
+        <small class="fw-bold">GoFood</small>
+    </a>
+    <a href="?q=fashion" class="text-decoration-none text-dark text-center">
+        <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm mb-2" style="width: 60px; height: 60px; font-size: 24px;">
+            <i class="fas fa-tshirt"></i>
+        </div>
+        <small class="fw-bold">GoFashion</small>
+    </a>
+    <a href="?q=kriya" class="text-decoration-none text-dark text-center">
+        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm mb-2" style="width: 60px; height: 60px; font-size: 24px;">
+            <i class="fas fa-gem"></i>
+        </div>
+        <small class="fw-bold">GoKriya</small>
+    </a>
+    <a href="{% url 'dashboard' %}" class="text-decoration-none text-dark text-center">
+        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm mb-2" style="width: 60px; height: 60px; font-size: 24px;">
+            <i class="fas fa-th-large"></i>
+        </div>
+        <small class="fw-bold">Semua</small>
+    </a>
+</div>
+
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-3">
+        <div>
+            <h4 class="fw-bold mb-0">Pilihan Buat Kamu 💚</h4>
+            {% if is_new_user %}
+                <small class="text-muted">Berdasarkan kategori favoritmu (KNN)</small>
+            {% else %}
+                <small class="text-muted">Curated by AI special for you (NCF)</small>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        {% for produk in rekomendasi_list %}
+        <div class="col-6 col-md-3 mb-4">
+            <div class="card h-100">
+                <div class="position-relative">
+                    {% if produk.gambar_produk %}
+                        <img src="{{ produk.gambar_produk.url }}" class="card-img-top" style="height: 160px; object-fit: cover;" alt="{{ produk.nama_produk }}">
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 160px;">
+                            <i class="fas fa-image fa-2x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    <span class="position-absolute top-0 end-0 bg-white px-2 py-1 m-2 rounded-pill small fw-bold shadow-sm">
+                        <i class="fas fa-star text-warning"></i> 4.8
+                    </span>
+                </div>
+                
+                <div class="card-body pb-0">
+                    <h6 class="card-title fw-bold text-truncate mb-1">{{ produk.nama_produk }}</h6>
+                    <p class="text-muted small mb-2">{{ produk.umkm.nama_umkm }}</p>
+                    <p class="text-success fw-bold">Rp {{ produk.harga }}</p>
+                </div>
+                <div class="card-footer bg-white border-0 pt-0 pb-3">
+                    <a href="{% url 'detail_produk' produk.id %}" class="btn btn-outline-primary w-100 rounded-pill btn-sm">
+                        <b>Tambah</b>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5 bg-light rounded-4">
+            <p class="text-muted mb-0">Belum ada rekomendasi personal saat ini.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="mb-5">
+    <h4 class="fw-bold mb-4">Lagi Promo Nih 🔥</h4>
+    
     {% if search_query and not all_produk %}
-        <div class="alert alert-warning text-center">
-            Produk dengan kata kunci "<strong>{{ search_query }}</strong>" tidak ditemukan. 
-            <a href="{% url 'dashboard' %}" class="alert-link">Reset Pencarian</a>
+        <div class="alert alert-warning rounded-4 text-center">
+            Waduh, produk "<strong>{{ search_query }}</strong>" gak ketemu nih.
+            <a href="{% url 'dashboard' %}" class="fw-bold text-dark">Lihat yang lain aja?</a>
         </div>
     {% endif %}
 
     <div class="row">
         {% for produk in all_produk %}
         <div class="col-6 col-md-2 mb-3">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="card h-100 shadow-sm">
                 {% if produk.gambar_produk %}
-                    <img src="{{ produk.gambar_produk.url }}" class="card-img-top" style="height: 100px; object-fit: cover;" alt="{{ produk.nama_produk }}">
+                    <img src="{{ produk.gambar_produk.url }}" class="card-img-top" style="height: 120px; object-fit: cover;" alt="{{ produk.nama_produk }}">
                 {% else %}
-                    <div class="bg-light text-secondary d-flex align-items-center justify-content-center" style="height: 100px;">
-                        <i class="fas fa-box"></i>
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
+                        <i class="fas fa-box text-secondary"></i>
                     </div>
                 {% endif %}
                 
                 <div class="card-body p-2">
-                    <h6 class="card-title fs-6 text-truncate mb-1">{{ produk.nama_produk }}</h6>
+                    <h6 class="card-title fs-6 text-truncate mb-0">{{ produk.nama_produk }}</h6>
+                    <small class="text-muted d-block mb-1 text-truncate">{{ produk.umkm.nama_umkm }}</small>
                     <p class="card-text text-dark fw-bold small">Rp {{ produk.harga }}</p>
                 </div>
                 <a href="{% url 'detail_produk' produk.id %}" class="stretched-link"></a>
@@ -97,6 +124,52 @@
         </div>
         {% endfor %}
     </div>
-</div>
+
+    {% if all_produk.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination justify-content-center align-items-center">
+            
+            {% if all_produk.has_previous %}
+                <li class="page-item">
+                    <a class="page-link rounded-circle mx-1 text-success border-success shadow-sm" 
+                       href="?page={{ all_produk.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       aria-label="Previous" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-circle mx-1 border-0 bg-light text-muted" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-chevron-left"></i>
+                    </span>
+                </li>
+            {% endif %}
+
+            <li class="page-item disabled mx-2">
+                <span class="page-link border-0 bg-transparent fw-bold text-dark">
+                    Halaman {{ all_produk.number }} dari {{ all_produk.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if all_produk.has_next %}
+                <li class="page-item">
+                    <a class="page-link rounded-circle mx-1 text-white bg-success border-success shadow-sm" 
+                       href="?page={{ all_produk.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       aria-label="Next" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-circle mx-1 border-0 bg-light text-muted" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-chevron-right"></i>
+                    </span>
+                </li>
+            {% endif %}
+            
+        </ul>
+    </nav>
+    {% endif %}
+    </div>
 
 {% endblock %}
