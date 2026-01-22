@@ -4,15 +4,14 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import random
+import difflib # Library untuk mendeteksi kemiripan teks (Typo)
 
 # ==========================================
-# 1. SETUP DJANGO ENVIRONMENT (Agar bisa baca DB)
+# 1. SETUP DJANGO ENVIRONMENT
 # ==========================================
-# Ganti 'skripsi_rekomendasi' dengan nama folder project utama Anda (yang ada settings.py)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'skripsi_rekomendasi.settings')
 django.setup()
 
-# Import Model setelah setup berhasil
 from web_rekomendasi.models import Produk
 
 # ==========================================
@@ -32,61 +31,99 @@ class ChatInput(BaseModel):
     message: str
 
 # ==========================================
-# 3. LOGIKA KECERDASAN BOT
+# 3. LOGIKA CERDAS (SMART LOGIC)
 # ==========================================
+
+def cari_produk_fuzzy(keyword):
+    """
+    Mencari produk. Jika tidak ketemu pas, cari yang mirip (typo).
+    """
+    # 1. Coba cari yang PAS dulu
+    hasil = Produk.objects.filter(nama_produk__icontains=keyword)
+    
+    # 2. Jika KOSONG, coba cari pakai Fuzzy Logic (Anti Typo)
+    if not hasil.exists():
+        semua_nama = list(Produk.objects.values_list('nama_produk', flat=True))
+        # Cari kata yang mirip minimal 60%
+        mirip = difflib.get_close_matches(keyword, semua_nama, n=1, cutoff=0.6)
+        
+        if mirip:
+            # Jika nemu yang mirip, ambil produk itu
+            return Produk.objects.filter(nama_produk__icontains=mirip[0]), mirip[0]
+        return None, None
+    
+    return hasil, keyword
+
+def format_jawaban_produk(queryset, pesan_awal):
+    jawaban = f"{pesan_awal}<br>"
+    for p in queryset[:3]: # Limit 3 biar chat ga kepanjangan
+        url = f"/produk/{p.id}/"
+        jawaban += f"🛍️ <a href='{url}' target='_blank'><b>{p.nama_produk}</b></a> - <span class='text-success fw-bold'>Rp {p.harga:,}</span><br>"
+    return jawaban
+
 def get_bot_response(msg: str):
     msg = msg.lower()
 
-    # --- FITUR 1: PENCARIAN PRODUK ---
-    if "cari" in msg or "produk" in msg or "lihat" in msg:
-        # Ambil kata kunci setelah kata "cari" (misal: "cari bakso" -> "bakso")
-        kata_kunci = msg.replace("cari", "").replace("produk", "").replace("lihat", "").strip()
+    # --- FITUR 1: DETEKSI KATEGORI (INTENT RECOGNITION) ---
+    if any(x in msg for x in ['lapar', 'haus', 'makan', 'minum', 'enak']):
+        hasil = Produk.objects.filter(kategori__iexact='kuliner').order_by('?')[:3]
+        if hasil:
+            return format_jawaban_produk(hasil, "Lagi lapar ya? Nih rekomendasi kuliner mantap:")
+            
+    if any(x in msg for x in ['baju', 'celana', 'kain', 'tenun', 'fashion']):
+        hasil = Produk.objects.filter(kategori__iexact='fashion').order_by('?')[:3]
+        if hasil:
+            return format_jawaban_produk(hasil, "Mau tampil kece? Cek produk fashion lokal ini:")
+
+    # --- FITUR 2: PENCARIAN DENGAN ANTI-TYPO ---
+    if "cari" in msg or "ada" in msg:
+        # Bersihkan kata perintah
+        keyword = msg.replace("cari", "").replace("apakah", "").replace("ada", "").strip()
         
-        if not kata_kunci:
-            return "Mau cari produk apa? Ketik: <b>'Cari [Nama Produk]'</b> ya."
+        if len(keyword) < 3:
+            return "Mau cari apa kak? Ketik <b>'Cari [Nama Produk]'</b> ya."
 
-        # Cari di Database Django
-        hasil = Produk.objects.filter(nama_produk__icontains=kata_kunci)[:3] # Ambil max 3
+        hasil, kata_temu = cari_produk_fuzzy(keyword)
 
-        if hasil.exists():
-            jawaban = f"Ditemukan {hasil.count()} produk untuk '<b>{kata_kunci}</b>':<br>"
-            for p in hasil:
-                # Kita buat Link HTML ke detail produk
-                url_produk = f"/produk/{p.id}/"
-                jawaban += f"- <a href='{url_produk}' target='_blank'><b>{p.nama_produk}</b></a> (Rp {p.harga})<br>"
-            return jawaban
+        if hasil and hasil.exists():
+            if kata_temu != keyword:
+                return format_jawaban_produk(hasil, f"Mungkin maksud kakak '<b>{kata_temu}</b>'? Ini produknya:")
+            else:
+                return format_jawaban_produk(hasil, f"Ini hasil pencarian untuk '<b>{keyword}</b>':")
         else:
-            return f"Maaf, produk '<b>{kata_kunci}</b>' belum tersedia di UMKMGo. 😔"
+            return f"Waduh, produk '<b>{keyword}</b>' belum ketemu nih. Coba kata kunci lain?"
 
-    # --- FITUR 2: REKOMENDASI ---
-    elif "rekomendasi" in msg or "saran" in msg:
-        # Ambil 3 produk secara acak/terbaru
+    # --- FITUR 3: REKOMENDASI MURAH/MAHAL ---
+    if "murah" in msg or "hemat" in msg:
+        # Cari 3 produk termurah
+        murah = Produk.objects.all().order_by('harga')[:3]
+        return format_jawaban_produk(murah, "Siap! Ini produk paling ramah di kantong:")
+
+    if "mahal" in msg or "premium" in msg or "sultan" in msg:
+        # Cari 3 produk termahal
+        mahal = Produk.objects.all().order_by('-harga')[:3]
+        return format_jawaban_produk(mahal, "Wih, lagi cari barang premium ya? Cek ini:")
+
+    # --- FITUR 4: REKOMENDASI UMUM ---
+    if "rekomendasi" in msg or "saran" in msg:
         items = Produk.objects.all().order_by('?')[:3]
-        if items:
-            jawaban = "Coba cek produk unggulan kami ini:<br>"
-            for p in items:
-                jawaban += f"⭐ <a href='/produk/{p.id}/' target='_blank'>{p.nama_produk}</a><br>"
-            return jawaban
-        return "Belum ada data produk nih."
+        return format_jawaban_produk(items, "Boleh banget! Ini pilihan terbaik dari kami:")
 
-    # --- FITUR 3: SAPAAN ---
-    elif "halo" in msg or "hai" in msg or "pagi" in msg:
-        sapaan = ["Halo!", "Hai kak!", "Selamat datang!"]
-        return f"{random.choice(sapaan)} 👋 Ada yang bisa saya bantu carikan? Coba ketik <b>'Cari Kripik'</b>."
+    # --- FITUR 5: SAPAAN & DEFAULT ---
+    if any(x in msg for x in ['halo', 'hai', 'pagi', 'sore', 'malam']):
+        return "Halo kak! 👋 Selamat datang di UMKMGo. Mau cari <b>Kuliner</b>, <b>Fashion</b>, atau <b>Kriya</b>?"
 
-    # --- FITUR 4: BANTUAN ---
-    elif "bantu" in msg or "help" in msg:
-        return """
-        Saya bisa bantu:
-        1. <b>Cari [Nama]</b>: Mencari produk.
-        2. <b>Rekomendasi</b>: Saran produk acak.
-        3. <b>Info</b>: Tentang aplikasi ini.
-        """
+    return """
+    Maaf aku belum paham. Coba ketik:
+    <br>👉 <b>"Cari Bakso"</b> (Pencarian)
+    <br>👉 <b>"Saya Lapar"</b> (Kategori)
+    <br>👉 <b>"Yang Murah"</b> (Filter Harga)
+    """
 
-    else:
-        return "Maaf saya kurang paham. Coba ketik <b>'Cari [Nama Barang]'</b> atau <b>'Rekomendasi'</b>."
-
+# ==========================================
+# 4. ENDPOINT (SYNC MODE)
+# ==========================================
 @app.post("/chat")
-def chat_endpoint(input_data: ChatInput):        # <--- Hapus kata 'async'
+def chat_endpoint(input_data: ChatInput):
     response_text = get_bot_response(input_data.message)
     return {"reply": response_text}
