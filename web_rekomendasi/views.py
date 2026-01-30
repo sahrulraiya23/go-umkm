@@ -6,9 +6,10 @@ from django.contrib.auth.forms import AuthenticationForm # <--- Penting untuk lo
 from django.contrib import messages
 from django.db.models import Q 
 from .models import Produk, Penilaian, PreferensiPengguna
-from .forms import UserRegisterForm, PreferensiForm
+from .forms import UserRegisterForm, PreferensiForm, UMKMDataForm
 from .recommender import get_rekomendasi
-from django.core.paginator import Paginator # <--- 1. Import Paginator
+from django.core.paginator import Paginator
+from django.contrib.auth.models import Group  # <--- TAMBAHKAN INI # <--- 1. Import Paginator
 # ==========================================
 # 0. LANDING PAGE (GOJEK STYLE)
 # ==========================================
@@ -120,6 +121,45 @@ def register_view(request):
     else:
         form = UserRegisterForm()
     return render(request, 'register.html', {'form': form})
+def register_umkm_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        user_form = UserRegisterForm(request.POST)
+        umkm_form = UMKMDataForm(request.POST)
+
+        if user_form.is_valid() and umkm_form.is_valid():
+            # 1. Simpan User
+            user = user_form.save(commit=False)
+            user.is_staff = True # WAJIB: Supaya bisa akses Admin Panel
+            user.save()
+
+            # 2. Masukkan ke Group "Pelaku UMKM" (Agar akses terbatas)
+            # Pastikan Group ini sudah dibuat di Admin Panel
+            group, created = Group.objects.get_or_create(name='Pelaku UMKM') 
+            user.groups.add(group)
+
+            # 3. Simpan Data Toko (UMKM)
+            umkm = umkm_form.save(commit=False)
+            umkm.pemilik = user # Hubungkan toko dengan user barusan
+            umkm.save()
+
+            # 4. Login Otomatis & Redirect
+            auth_login(request, user)
+            messages.success(request, f"Selamat bergabung, {umkm.nama_umkm}! Silakan kelola produk Anda.")
+            # Redirect ke Halaman Admin (Dashboard Pengelola)
+            return redirect('/admin/') 
+            
+    else:
+        user_form = UserRegisterForm()
+        umkm_form = UMKMDataForm()
+
+    context = {
+        'user_form': user_form,
+        'umkm_form': umkm_form
+    }
+    return render(request, 'register_umkm.html', context)
 
 # ==========================================
 # 4. PILIH PREFERENSI (KNN COLD START)

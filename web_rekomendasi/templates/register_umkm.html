@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    /* Custom Style ala Gojek App */
+    .gojek-input {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px; /* Sudut sedikit membulat tapi tegas */
+        padding: 12px 15px;
+        font-size: 14px;
+        transition: all 0.3s;
+        background-color: #fafafa;
+    }
+    .gojek-input:focus {
+        background-color: #fff;
+        border-color: #00AA13;
+        box-shadow: 0 0 0 4px rgba(0, 170, 19, 0.1); /* Glow halus */
+    }
+    .gojek-label {
+        font-weight: 600;
+        color: #4a4a4a;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+    .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #101820;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .section-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #eee;
+        margin-left: 15px;
+    }
+    .sidebar-gradient {
+        background: linear-gradient(135deg, #00AA13 0%, #008f11 100%);
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-11">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="row g-0">
+                    
+                    <div class="col-md-4 sidebar-gradient text-white p-5 d-none d-lg-flex flex-column justify-content-between">
+                        <div>
+                            <div class="bg-white text-success rounded-circle d-flex align-items-center justify-content-center shadow-sm mb-4" style="width: 60px; height: 60px;">
+                                <i class="fas fa-motorcycle fa-2x"></i>
+                            </div>
+                            <h2 class="fw-bold mb-3">Mitra Usaha</h2>
+                            <p class="opacity-75" style="line-height: 1.6;">"Bergabunglah dengan ekosistem digital terbesar di Kendari. Kelola toko lebih mudah, pelanggan makin bertambah."</p>
+                        </div>
+                        <div class="small opacity-50">
+                            &copy; 2026 UMKMGo Official
+                        </div>
+                    </div>
+
+                    <div class="col-md-8 bg-white p-4 p-md-5">
+                        <div class="text-center mb-5">
+                            <h3 class="fw-bold text-dark">Formulir Pendaftaran</h3>
+                            <p class="text-muted small">Lengkapi data di bawah ini untuk mengaktifkan toko Anda.</p>
+                        </div>
+
+                        <form method="POST" autocomplete="off">
+                            {% csrf_token %}
+
+                            <div class="mb-5">
+                                <div class="section-title">
+                                    <span class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px; font-size: 12px;">1</span>
+                                    Informasi Login
+                                </div>
+                                <div class="row g-3">
+                                    {% for field in user_form %}
+                                    <div class="col-md-6">
+                                        <label class="gojek-label">{{ field.label }}</label>
+                                        <input type="{{ field.field.widget.input_type }}" 
+                                               name="{{ field.name }}" 
+                                               class="form-control gojek-input" 
+                                               id="{{ field.id_for_label }}"
+                                               {% if field.value %}value="{{ field.value }}"{% endif %}
+                                               placeholder="{{ field.label }}...">
+                                        
+                                        {% if field.help_text %}
+                                            <small class="text-muted d-block mt-1" style="font-size: 10px;">{{ field.help_text }}</small>
+                                        {% endif %}
+                                        {% for error in field.errors %}
+                                            <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="mb-5">
+                                <div class="section-title">
+                                    <span class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px; font-size: 12px;">2</span>
+                                    Profil Toko
+                                </div>
+                                <div class="row g-3">
+                                    {% for field in umkm_form %}
+                                        {% if field.name == 'nama_umkm' or field.name == 'no_whatsapp' %}
+                                            <div class="col-md-6">
+                                                <label class="gojek-label">{{ field.label }}</label>
+                                                <input type="text" name="{{ field.name }}" class="form-control gojek-input" placeholder="{{ field.label }}...">
+                                                {% for error in field.errors %}
+                                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <div class="col-12">
+                                                <label class="gojek-label">{{ field.label }}</label>
+                                                <textarea name="{{ field.name }}" class="form-control gojek-input" rows="3" placeholder="Masukkan {{ field.label }}..."></textarea>
+                                                {% for error in field.errors %}
+                                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success rounded-pill fw-bold py-3 shadow-sm" style="background-color: #00AA13; border: none;">
+                                    Daftar & Buka Toko
+                                </button>
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">Sudah punya akun? <a href="{% url 'login' %}" class="fw-bold text-success text-decoration-none">Masuk</a></small>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

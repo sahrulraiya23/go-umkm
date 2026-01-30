@@ -11,7 +11,8 @@ from web_rekomendasi.views import (
     logout_view,
     register_view,
     pilih_preferensi_view,
-    detail_produk_view
+    detail_produk_view,
+    register_umkm_view
 )
 
 urlpatterns = [
@@ -27,6 +28,7 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path('register/', register_view, name='register'),
+    path('register-umkm/', register_umkm_view, name='register_umkm'),
 
     # 4. Fitur Lain
     path('preferensi/', pilih_preferensi_view, name='pilih_preferensi'),

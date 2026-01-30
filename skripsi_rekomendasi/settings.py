@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -129,3 +130,83 @@ LOGIN_URL = 'login'
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# ... (Ini kode bawaan Django di bagian atas, biarkan saja) ...
+# STATIC_URL = 'static/'
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ==========================================
+# PASTE KODE INI DI SINI (PALING BAWAH FILE)
+# ==========================================
+
+JAZZMIN_SETTINGS = {
+    # Judul di Tab Browser
+    "site_title": "Admin UMKMGo",
+
+    # Judul di Halaman Login & Dashboard
+    "site_header": "UMKMGo Dashboard",
+    "site_brand": "UMKMGo",
+
+    # Pesan Selamat Datang
+    "welcome_sign": "Selamat Datang di Panel Admin UMKMGo",
+    "copyright": "UMKMGo Skripsi 2026",
+
+    # Menu Pencarian
+    "search_model": ["web_rekomendasi.Produk", "auth.User"],
+
+    # Custom Menu Atas
+    "topmenu_links": [
+        {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Lihat Website", "url": "/", "new_window": True},
+    ],
+
+    # Menu User (Pojok Kanan Atas)
+    "usermenu_links": [
+        {"model": "auth.user"}
+    ],
+
+    # Tampilkan Sidebar
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    
+    # Ikon Menu (FontAwesome)
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "web_rekomendasi.Produk": "fas fa-box-open",
+        "web_rekomendasi.Penilaian": "fas fa-star",
+        "web_rekomendasi.PreferensiPengguna": "fas fa-heart",
+    },
+    
+    # Urutan Menu
+    "order_with_respect_to": ["web_rekomendasi", "auth"],
+}
+
+# TEMA TAMPILAN (HIJAU GOJEK)
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-success",
+    "accent": "accent-success",
+    "navbar": "navbar-success navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": False,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-light-success",
+    "sidebar_nav_small_text": False,
+    "theme": "flatly", 
+    "dark_mode_theme": None,
+    "button_classes": {
+        "primary": "btn-success",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    }
+}
