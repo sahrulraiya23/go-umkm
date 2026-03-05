@@ -249,20 +249,21 @@
                 try {
                     // 3. Hit API FastAPI
                     // Pastikan service FastAPI jalan di port 8001
-                    const response = await fetch('http://127.0.0.1:8001/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message: message })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    // 4. Hapus loading & Tampilkan balasan
-                    if(document.getElementById('loading-bubble')) {
-                        document.getElementById('loading-bubble').remove();
-                    }
-                    appendMessage(data.reply, 'bot');
-
+           // 3. Hit API FastAPI
+                // Pastikan service FastAPI jalan di port 8001
+                const response = await fetch('http://127.0.0.1:8001/api/chat/', { // <--- UBAH URL DI SINI
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message }) 
+                });
+                
+                const data = await response.json();
+                
+                // 4. Hapus loading & Tampilkan balasan
+                if(document.getElementById('loading-bubble')) {
+                    document.getElementById('loading-bubble').remove();
+                }
+                appendMessage(data.jawaban, 'bot'); // <--- UBAH data.reply JADI data.jawaban
                 } catch (error) {
                     if(document.getElementById('loading-bubble')) {
                         document.getElementById('loading-bubble').remove();
