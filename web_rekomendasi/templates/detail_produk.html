@@ -2,126 +2,187 @@
 
 {% block content %}
 
-<div class="container py-4">
+<style>
+    /* Custom Scrollbar untuk Deskripsi */
+    .deskripsi-area {
+        max-height: 300px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+    .deskripsi-area::-webkit-scrollbar {
+        width: 6px;
+    }
+    .deskripsi-area::-webkit-scrollbar-thumb {
+        background-color: #ddd;
+        border-radius: 10px;
+    }
     
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb small">
+    /* Sticky Image pada Desktop */
+    @media (min-width: 768px) {
+        .sticky-product {
+            position: sticky;
+            top: 100px;
+            z-index: 10;
+        }
+    }
+</style>
+
+<div class="container py-5">
+    
+    <nav aria-label="breadcrumb" class="mb-4 d-none d-md-block">
+        <ol class="breadcrumb small bg-light px-3 py-2 rounded-pill d-inline-flex">
             <li class="breadcrumb-item"><a href="{% url 'dashboard' %}" class="text-decoration-none text-muted">Home</a></li>
             <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-muted">{{ produk.kategori.nama_kategori }}</a></li>
             <li class="breadcrumb-item active text-success fw-bold" aria-current="page">{{ produk.nama_produk|truncatechars:30 }}</li>
         </ol>
     </nav>
 
-    <div class="row">
-        <div class="col-md-5 mb-4">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                {% if produk.gambar_produk %}
-                    <img src="{{ produk.gambar_produk.url }}" class="img-fluid w-100" style="object-fit: cover; height: 400px;" alt="{{ produk.nama_produk }}">
-                {% else %}
-                    <div class="bg-light d-flex align-items-center justify-content-center text-muted" style="height: 400px;">
-                        <i class="fas fa-image fa-3x"></i>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="col-md-7">
-            <div class="ps-md-4">
-                <h2 class="fw-bold text-dark mb-2">{{ produk.nama_produk }}</h2>
-                <div class="d-flex align-items-center mb-3">
-                    <h3 class="text-success fw-bold mb-0 me-3">Rp {{ produk.harga|floatformat:0 }}</h3>
-                    <div class="badge bg-warning text-dark px-2">
-                        <i class="fas fa-star text-white"></i> 4.8 </div>
-                    <span class="text-muted small ms-2">| Terjual 50+</span>
-                </div>
-
-                <hr class="text-muted opacity-25">
-
-                <div class="d-flex align-items-center py-2 mb-3">
-                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm me-3" style="width: 50px; height: 50px;">
-                        <i class="fas fa-store fa-lg"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold mb-0 text-dark">
-                            {{ produk.umkm.nama_umkm }} 
-                            <i class="fas fa-check-circle text-primary small" title="Verified UMKM"></i>
-                        </h6>
-                        <small class="text-muted"><i class="fas fa-map-marker-alt me-1 text-danger"></i>{{ produk.umkm.alamat }}</small>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h6 class="fw-bold">Deskripsi Produk</h6>
-                    <p class="text-muted small" style="line-height: 1.6; text-align: justify;">
-                        {{ produk.deskripsi|linebreaksbr }}
-                    </p>
-                </div>
-
-                <div class="d-grid gap-2 d-md-flex mt-4">
-                    <a href="https://wa.me/{{ produk.umkm.no_whatsapp }}?text=Halo%20{{ produk.umkm.nama_umkm }},%20saya%20tertarik%20dengan%20produk%20{{ produk.nama_produk }}%20di%20UMKMGo." 
-                       target="_blank" 
-                       class="btn btn-outline-success btn-lg rounded-pill fw-bold px-4 flex-grow-1">
-                        <i class="fab fa-whatsapp me-2"></i> Chat Penjual
-                    </a>
+    <div class="row gx-5">
+        <div class="col-lg-5 mb-5 mb-lg-0">
+            <div class="sticky-product">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden position-relative">
+                    {% if produk.gambar_produk %}
+                        <img src="{{ produk.gambar_produk.url }}" class="img-fluid w-100" style="object-fit: cover; aspect-ratio: 1/1;" alt="{{ produk.nama_produk }}">
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center text-muted" style="aspect-ratio: 1/1;">
+                            <i class="fas fa-image fa-4x opacity-25"></i>
+                        </div>
+                    {% endif %}
                     
-                    <button class="btn btn-success btn-lg rounded-pill fw-bold px-5 flex-grow-1 shadow-sm">
-                        Beli Sekarang
-                    </button>
+                    <span class="position-absolute top-0 start-0 m-3 badge bg-danger rounded-pill px-3 py-2 shadow-sm">
+                        Terlaris 🔥
+                    </span>
                 </div>
-                <small class="text-muted mt-2 d-block fst-italic" style="font-size: 11px;">*Klik 'Chat Penjual' untuk cek stok real-time.</small>
             </div>
         </div>
-    </div>
 
-    <div class="row mt-5">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm rounded-4 p-4">
-                <h5 class="fw-bold mb-4 border-bottom pb-3">Ulasan Pembeli</h5>
-                
-                {% if user.is_authenticated %}
-                <div class="bg-light p-3 rounded-3 mb-4">
-                    <h6 class="fw-bold small mb-2">Berikan ulasanmu:</h6>
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="d-flex align-items-center gap-3">
-                            <select name="rating" class="form-select form-select-sm w-auto" required>
-                                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-                                <option value="4">⭐⭐⭐⭐ (4)</option>
-                                <option value="3">⭐⭐⭐ (3)</option>
-                                <option value="2">⭐⭐ (2)</option>
-                                <option value="1">⭐ (1)</option>
-                            </select>
-                            <input type="text" name="ulasan" class="form-control form-control-sm" placeholder="Bagaimana kualitas produk ini?" required>
-                            <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3">Kirim</button>
-                        </div>
-                    </form>
+        <div class="col-lg-7">
+            <div class="mb-4">
+                <h1 class="fw-bold text-dark mb-2 display-6">{{ produk.nama_produk }}</h1>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="badge bg-warning text-dark px-2 rounded-1">
+                        <i class="fas fa-star text-white"></i> 4.8
+                    </span>
+                    <span class="text-muted small">|</span>
+                    <span class="text-muted small">Terjual 50+</span>
+                    <span class="text-muted small">|</span>
+                    <span class="text-success small fw-bold">Stok Tersedia</span>
                 </div>
-                {% endif %}
+                <h2 class="text-success fw-bold display-6 mb-0">Rp {{ produk.harga|floatformat:0 }}</h2>
+            </div>
 
-                <div class="review-list">
-                    {% for ulasan in semua_ulasan %}
-                    <div class="d-flex mb-3">
-                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-size: 14px;">
-                            {{ ulasan.user.username|slice:":2"|upper }}
-                        </div>
-                        <div>
-                            <div class="d-flex align-items-center">
-                                <h6 class="fw-bold mb-0 me-2">{{ ulasan.user.username }}</h6>
-                                <small class="text-warning">
-                                    <i class="fas fa-star"></i> {{ ulasan.rating }}
-                                </small>
+            <hr class="border-light my-4">
+
+            <div class="card border-0 bg-light rounded-4 p-3 mb-4 d-flex flex-row align-items-center">
+                <div class="bg-white p-2 rounded-circle shadow-sm me-3">
+                    <i class="fas fa-store fa-2x text-success"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="fw-bold mb-0 text-dark">
+                        {{ produk.umkm.nama_umkm }} 
+                        <i class="fas fa-check-circle text-primary small ms-1" title="Official Store"></i>
+                    </h6>
+                    <small class="text-muted"><i class="fas fa-map-marker-alt me-1 text-danger"></i>{{ produk.umkm.alamat }}</small>
+                </div>
+                <a href="#" class="btn btn-sm btn-outline-success rounded-pill fw-bold px-3">Kunjungi Toko</a>
+            </div>
+
+            <div class="mb-5">
+                <h6 class="fw-bold border-bottom pb-2 mb-3">Detail Produk</h6>
+                <div class="text-muted deskripsi-area" style="line-height: 1.8; font-size: 15px;">
+                    {{ produk.deskripsi|linebreaksbr }}
+                </div>
+            </div>
+
+            <div class="d-grid gap-3 d-md-flex align-items-center mb-5">
+                <a href="https://wa.me/{{ produk.umkm.no_whatsapp }}?text=Halo%20{{ produk.umkm.nama_umkm }},%20saya%20tertarik%20dengan%20produk%20{{ produk.nama_produk }}%20di%20UMKMGo." 
+                   target="_blank" 
+                   class="btn btn-outline-success btn-lg rounded-pill fw-bold px-5 py-3 flex-grow-1 shadow-sm hover-scale">
+                    <i class="fab fa-whatsapp me-2"></i> Chat Penjual
+                </a>
+                <button class="btn btn-success btn-lg rounded-pill fw-bold px-5 py-3 flex-grow-1 shadow hover-scale">
+                    Beli Sekarang
+                </button>
+            </div>
+
+            <div class="mt-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold m-0">Ulasan Pembeli <span class="text-muted fw-normal">({{ semua_ulasan.count }})</span></h5>
+                    {% if user.is_authenticated %}
+                        <button class="btn btn-sm btn-dark rounded-pill px-3" type="button" data-bs-toggle="collapse" data-bs-target="#formUlasan">
+                            + Tulis Ulasan
+                        </button>
+                    {% endif %}
+                </div>
+
+                <div class="collapse mb-4" id="formUlasan">
+                    <div class="card card-body bg-light border-0 rounded-4">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="row g-2 align-items-center">
+                                <div class="col-auto">
+                                    <select name="rating" class="form-select form-select-sm" required>
+                                        <option value="5">⭐⭐⭐⭐⭐</option>
+                                        <option value="4">⭐⭐⭐⭐</option>
+                                        <option value="3">⭐⭐⭐</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="ulasan" class="form-control form-control-sm" placeholder="Ceritakan pengalamanmu..." required>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-success btn-sm rounded-pill px-4">Kirim</button>
+                                </div>
                             </div>
-                            <small class="text-muted" style="font-size: 10px;">{{ ulasan.tanggal|date:"d M Y" }}</small>
-                            <p class="text-dark small mt-1 mb-0">{{ ulasan.ulasan }}</p>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="row g-3">
+                    {% for ulasan in semua_ulasan %}
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" 
+                                     style="width: 45px; height: 45px; background: #eee; color: #555; font-weight: bold;">
+                                    {{ ulasan.user.username|slice:":2"|upper }}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="fw-bold mb-0 text-dark">{{ ulasan.user.username }}</h6>
+                                        <span class="text-muted small" style="font-size: 11px;">{{ ulasan.tanggal|date:"d M Y" }}</span>
+                                    </div>
+                                    <div class="mb-2">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= ulasan.rating %}
+                                                <i class="fas fa-star text-warning small"></i>
+                                            {% else %}
+                                                <i class="fas fa-star text-muted small opacity-25"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <p class="text-secondary small mb-0" style="line-height: 1.5;">"{{ ulasan.ulasan }}"</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {% empty %}
-                        <p class="text-center text-muted py-3">Belum ada ulasan. Jadilah yang pertama!</p>
+                        <div class="col-12 text-center py-5 bg-light rounded-4">
+                            <i class="fas fa-comment-slash fa-2x text-muted mb-3 opacity-50"></i>
+                            <p class="text-muted mb-0">Belum ada ulasan untuk produk ini.</p>
+                        </div>
                     {% endfor %}
                 </div>
+
             </div>
+
         </div>
     </div>
+</div>
 
-    </div>
+<style>
+    .hover-scale { transition: transform 0.2s; }
+    .hover-scale:hover { transform: scale(1.02); }
+</style>
+
 {% endblock %}
